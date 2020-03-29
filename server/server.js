@@ -1,25 +1,26 @@
-//REQUIREDS
+require('./config/config');
 const express = require('express');
 const bodyParser = require('body-parser');
+const https = require('https');
+const fs = require('fs');
 
-//UTILIZR EXPRESS JS CÓMO FRAMEWORK WEB
 const app = express();
 
-//RECIBIR RESPUESTA DECODIFICADA EN FORMA DE JSON
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json({ limit: '10mb', extended: true }));
 app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
-//CONFIGURACIÓN GLOBAL DE RUTAS
-app.use(require('./routes/index.js'));
+app.use(require('./routes/index'));
 
-//CONFIGURACIÓN DE CORS
-app.use(function(req, res, next) {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
-    next();
-});
+if (process.env.NODE_ENV === 'dev') {
+    app.listen(3000);
+} else {
+    https.createServer({
+        key: fs.readFileSync('/home/bitnami/private/private.key'),
+        cert: fs.readFileSync('/home/bitnami/private/certificate.crt')
+    }, app).listen(3000);
+}
 
-//PONER SERVIDOR EN ESCUCHA
-app.listen(3000);
+console.log(`SERVER IS LISTENING:
+            PORT: ${3000} 
+`);
