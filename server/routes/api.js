@@ -27,7 +27,7 @@ app.post('/diagnosis', async(req, res) => {
     response = {
         ok: true,
         result,
-        interval: Math.floor(Math.random() * (100)) + '55%'
+        interval: Math.floor(Math.random() * (100)) + '%'
     }
 
     res.json(response);
@@ -46,32 +46,16 @@ app.post('/retroalimentation', async(req, res) => {
 });
 
 app.get('/', (req, res) => {
-
-    // console.log('Lie to Api');
-    // data = {
-    //     app: 'Lie to Api',
-    //     fecha: Date.now(),
-    //     nombre: 'Gerardo Arceo',
-    //     mensaje: 'Sé feliz :)'
-    // };
-    // res.json({
-    //     data
-    // });
-
-    result = '';
-    if (Math.random() > 0.5) {
-        result = 'Verdad';
-    } else {
-        result = 'Mentira';
-    }
-
-    response = {
-        ok: true,
-        result,
-        interval: Math.floor(Math.random() * (100)) + '%'
-    }
-
-    res.json(response);
+    console.log('Lie to Api');
+    data = {
+        app: 'Lie to Api',
+        fecha: Date.now(),
+        nombre: 'Gerardo Arceo',
+        mensaje: 'Sé feliz :)'
+    };
+    res.json({
+        data
+    });
 });
 
 module.exports = app;
