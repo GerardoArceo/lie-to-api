@@ -17,10 +17,17 @@ app.post('/diagnosis', async(req, res) => {
         console.log('The file has been saved!');
     });
 
+    result = '';
+    if (Math.random() > 0.5) {
+        result = 'Verdad';
+    } else {
+        result = 'Mentira';
+    }
+
     response = {
         ok: true,
-        result: 'Mentira',
-        interval: '55%'
+        result,
+        interval: Math.floor(Math.random() * (100)) + '55%'
     }
 
     res.json(response);
@@ -40,16 +47,31 @@ app.post('/retroalimentation', async(req, res) => {
 
 app.get('/', (req, res) => {
 
-    console.log('Lie to Api');
-    data = {
-        app: 'Lie to Api',
-        fecha: Date.now(),
-        nombre: 'Gerardo Arceo',
-        mensaje: 'Sé feliz :)'
-    };
-    res.json({
-        data
-    });
+    // console.log('Lie to Api');
+    // data = {
+    //     app: 'Lie to Api',
+    //     fecha: Date.now(),
+    //     nombre: 'Gerardo Arceo',
+    //     mensaje: 'Sé feliz :)'
+    // };
+    // res.json({
+    //     data
+    // });
+
+    result = '';
+    if (Math.random() > 0.5) {
+        result = 'Verdad';
+    } else {
+        result = 'Mentira';
+    }
+
+    response = {
+        ok: true,
+        result,
+        interval: Math.floor(Math.random() * (100)) + '%'
+    }
+
+    res.json(response);
 });
 
 module.exports = app;
