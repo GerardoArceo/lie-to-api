@@ -1,0 +1,24 @@
+name: Deno
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: executing remote ssh commands using password
+      uses: appleboy/ssh-action@master
+      with:
+        host: "34.230.148.142"
+        username: "bitnami"
+        key: ${{ secrets.LIGHTSAILDEFAULTKEY }}
+        port: 22
+        script: |
+          cd lie-to-api
+          sudo git reset --hard
+          git pull
+          sudo npm install
+          pm2 update

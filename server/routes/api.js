@@ -46,9 +46,8 @@ app.post('/retroalimentation', async(req, res) => {
 });
 
 app.get('/', (req, res) => {
-    console.log('Lie to Api');
     data = {
-        app: 'Lie to Api',
+        app: 'Lie to Api 2',
         fecha: Date.now(),
         nombre: 'Gerardo Arceo',
         mensaje: 'Sé feliz :)'
