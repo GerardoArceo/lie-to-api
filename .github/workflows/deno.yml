@@ -19,6 +19,6 @@ jobs:
         script: |
           cd lie-to-api
           sudo git reset --hard
-          git pull
+          sudo git pull
           sudo npm install
           pm2 update
