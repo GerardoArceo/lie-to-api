@@ -1,12 +1,12 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const port = 3003;
-const app = express();
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json({ limit: '10mb', extended: true }));
-app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
+const express= require('express')
+const { CORS } = require('./middlewares/access');
+require('./config/config');
+
+const app= express();
+
+app.use(CORS);
 
 app.use(require('./routes/index'));
 
-app.listen(port, console.log(`SERVER LISTENING PORT: ${ port }`));
+app.listen(process.env.PORT, () => console.log(`SERVER RUNNING ON PORT: ${process.env.PORT} 🐨`));

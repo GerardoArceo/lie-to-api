@@ -1,36 +1,19 @@
-//REQUIREDS
 const express = require('express');
-const fs = require('fs');
-const { CORS } = require('../middlewares/access');
 
 const app = express();
 
-app.use(CORS);
-
-app.post('/diagnosis', async(req, res) => {
+app.post('/api', async(req, res) => {
     let body = req.body;
-    let voice_signal = body.voice_signal;
 
-    const buffer = new Buffer.from(voice_signal);
-    fs.writeFile('sound.aac', buffer, (err) => {
-        if (err) throw err;
-        console.log('The file has been saved!');
-    });
+    console.log(body);
 
-    result = '';
-    if (Math.random() > 0.5) {
-        result = 'Verdad';
-    } else {
-        result = 'Mentira';
+    try {
+        params = JSON.parse(body.params);
+    } catch (Exception) {
+        params = {};
     }
-
-    response = {
-        ok: true,
-        result,
-        interval: Math.floor(Math.random() * (100)) + '%'
-    }
-
-    res.json(response);
+    let result = await executeAction(db, accion, params);
+    res.json(result);
 });
 
 app.post('/retroalimentation', async(req, res) => {
