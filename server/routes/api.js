@@ -35,6 +35,7 @@ app.get('/', (req, res) => {
         nombre: 'Gerardo Arceo',
         mensaje: 'Sé feliz :)'
     };
+    console.log(data);
     res.json({
         data
     });
