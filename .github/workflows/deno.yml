@@ -10,10 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: executing remote ssh commands using password
-      uses: garygrossgarten/github-action-scp@release
+      uses: appleboy/ssh-action@master
       with:
-        local: server
-        remote: scp/directory
         host: "34.230.148.142"
         username: "bitnami"
-        password: ${{ secrets.LIGHTSAILDEFAULTKEY }}
+        key: ${{ secrets.LIGHTSAILDEFAULTKEY }}
+        port: 22
+        script: |
+          cd lie-to-api
+          sudo git reset --hard
+          sudo git pull https://github.com/GerardoArceo/lie-to-api.git
+          sudo npm install
+          pm2 update
