@@ -1,6 +1,6 @@
 import multer from 'multer';
-import MySQL from "../db/mysql";
 import express from "express";
+import MySQL from '../db/mysql';
 
 const app = express();
 
