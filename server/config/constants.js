@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DATABASE_NAME = exports.PASS_DB = exports.USER_DB = exports.PORT_DB = exports.HOST_DB = exports.PORT = exports.RECAPTCHA_KEY = exports.NODE_ENV = exports.TOKEN_LIFE_TIME = exports.TOKEN_SEED = void 0;
+exports.TOKEN_SEED = process.env.TOKEN_SEED || 's3m1ll4_d3_d3s4rr0ll0';
+exports.TOKEN_LIFE_TIME = process.env.TOKEN_LIFE_TIME || 1000 * 60 * 60 * 24 * 90;
+exports.NODE_ENV = process.env.NODE_ENV || 'prod';
+exports.RECAPTCHA_KEY = process.env.RECAPTCHA_KEY || 'key';
+exports.PORT = 3003;
+exports.HOST_DB = process.env.HOST_DB = "127.0.0.1";
+exports.PORT_DB = exports.NODE_ENV === 'dev' ? 3307 : 3306;
+exports.USER_DB = process.env.USER_DB || "root";
+exports.PASS_DB = process.env.PASS_DB || "Gutopia12$HxH$";
+exports.DATABASE_NAME = process.env.DATABASE_NAME || "lie_to_db";

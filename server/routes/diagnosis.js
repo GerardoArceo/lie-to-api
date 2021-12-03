@@ -1,58 +1,60 @@
-const express = require('express');
-const multer = require('multer')
-const {
-    executeAction
-} = require('../db/mysql');
-
-const app = express();
-
-app.use('/uploads', express.static(__dirname + '/uploads'));
-
-var storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, 'uploads')
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const multer_1 = __importDefault(require("multer"));
+const mysql_1 = __importDefault(require("../db/mysql"));
+const express_1 = __importDefault(require("express"));
+const app = (0, express_1.default)();
+app.use('/uploads', express_1.default.static(__dirname + '/uploads'));
+var storage = multer_1.default.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'uploads');
     },
-    filename: function (req, file, cb) {
-        cb(null, new Date().toISOString() + file.originalname)
+    filename: (req, file, cb) => {
+        cb(null, new Date().toISOString() + file.originalname);
     }
-})
-
-var upload = multer({
+});
+var upload = (0, multer_1.default)({
     storage: storage
-})
-app.post('/diagnosis', upload.single('myFile'), async (req, res, next) => {
-    const file = req.file
+});
+app.post('/diagnosis', upload.single('myFile'), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const file = req.file;
     if (!file) {
-        const error = new Error('Please upload a file')
-        error.httpStatusCode = 400
-        return next("hey error")
+        const error = new Error('Please upload a file');
+        return next("hey error");
     }
-
     let body = req.body;
     console.log(body);
-
-    const final_result = Math.random() > 0.5
-
-    const hit_probability = Math.floor(Math.random() * (100))
-
-    response = {
+    const final_result = Math.random() > 0.5;
+    const hit_probability = Math.floor(Math.random() * (100));
+    const response = {
         ok: true,
         final_result,
         hit_probability: hit_probability + '%'
-    }
-
+    };
     if (body.isOnCalibrationMode == 'true') {
-        const params = {
+        const args = {
             user_id: body.uid,
             bpm: body.bpm,
             eye_movement: 50,
             voice_signal: 50,
-        }
-
-        let result = await executeAction('save_user_baseline_variables', params);
+        };
+        const result = (yield mysql_1.default.executeSP('save_user_baseline_variables', args)).results;
         console.log(result);
-    } else {
-        const params = {
+    }
+    else {
+        const args = {
             user_id: body.uid,
             created_date: new Date(),
             final_result,
@@ -60,14 +62,10 @@ app.post('/diagnosis', upload.single('myFile'), async (req, res, next) => {
             voice_signal_result: 50,
             bpm_result: body.bpm,
             hit_probability
-        }
-
-        let result = await executeAction('save_diagnosis', params);
+        };
+        const result = (yield mysql_1.default.executeSP('save_user_baseline_variables', args)).results;
         console.log(result);
     }
-
-
     res.json(response);
-})
-
-module.exports = app;
+}));
+exports.default = app;

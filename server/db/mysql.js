@@ -1,70 +1,44 @@
-//REQUIREDS
-const mysql = require('mysql');
-const getQuery = require('./funciones');
-
-let pool;
-let datosConexion = {
-    connectionLimit: 1,
-    host: process.env.HOST_DB,
-    port: process.env.PORT_DB,
-    user: process.env.USER_DB,
-    password: process.env.PASS_DB,
-    database: 'lie_to_db',
-};
-
-let executeQuery = (query) => {
-    return new Promise((resolve, reject) => {
-        pool.getConnection(function(err, connection) {
-            if (err || typeof connection == 'undefined') {
-                console.log("Error de conexión: ", err);
-                reject();
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const mysql = require("mysql");
+const constants_1 = require("../config/constants");
+class MySQL {
+    constructor() {
+        this.cnn = mysql.createConnection({
+            host: constants_1.HOST_DB,
+            port: constants_1.PORT_DB,
+            user: constants_1.USER_DB,
+            password: constants_1.PASS_DB,
+            database: constants_1.DATABASE_NAME,
+        });
+        this.cnn.connect((err) => {
+            if (err) {
+                console.log(err.message);
             }
-            connection.query(query, function(err2, results) {
-                connection.release();
-                if (err2) {
-                    error = true;
-                    console.log("Error con el query: ", query, " ERROR:", err2);
-                    reject();
+        });
+    }
+    static get instance() {
+        return this._instance || (this._instance = new this());
+    }
+    static executeSP(sp, args) {
+        let values = args ? Object.values(args) : [];
+        values = values.map(v => this.instance.cnn.escape(v));
+        let completeQuery = `CALL ${sp}(${values});`;
+        return new Promise((resolve, reject) => {
+            this.instance.cnn.query(completeQuery, (error, results) => {
+                if (error) {
+                    console.log('mysql', error.message, completeQuery);
+                    resolve({ ok: false, results: [] });
                 }
-                resolve(results);
-                connection.destroy();
+                else {
+                    console.log('mysql', 'OK', completeQuery);
+                    if (results && results.length > 0) {
+                        results = JSON.parse(JSON.stringify(results[0]));
+                    }
+                    resolve({ ok: true, results });
+                }
             });
         });
-    });
-};
-
-let executeAction = async(action, params) => {
-    pool = mysql.createPool(datosConexion);
-    for (const i in params) //Prevenir SQLi
-        params[i] = pool.escape(params[i]);
-    let alerta = {
-        ok: true,
-        type: 'success',
-        title: 'ÉXITO'
-    };
-
-    let query = getQuery(action, params);
-
-    if (query.query != null) {
-        try {
-            let result = (await executeQuery(query.query));
-            alerta.text = query.texto_ok;
-            return [alerta, result];
-        } catch (Exception) {
-            query.texto_error = `Error en la base de datos`;
-        }
     }
-
-    alerta = {
-        ok: false,
-        type: 'error',
-        title: 'ERROR',
-        text: query.texto_error
-    };
-    return [alerta, {}];
-
-};
-
-module.exports = {
-    executeAction
-};
+}
+exports.default = MySQL;
