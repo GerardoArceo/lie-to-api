@@ -56,16 +56,26 @@ app.post('/diagnosis', upload.single('myFile'), (req, res, next) => __awaiter(vo
     else {
         const args = {
             user_id: body.uid,
-            created_date: new Date(),
             final_result,
             eye_movement_result: 50,
             voice_signal_result: 50,
             bpm_result: body.bpm,
             hit_probability
         };
-        const result = (yield mysql_1.default.executeSP('save_user_baseline_variables', args)).results;
+        const result = (yield mysql_1.default.executeSP('save_diagnosis', args)).results;
         console.log(result);
     }
     res.json(response);
+}));
+app.post('/retroalimentation', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let body = req.body;
+    console.log(body);
+    const args = {
+        id: body.id,
+        was_right: body.was_right
+    };
+    const result = (yield mysql_1.default.executeSP('update_diagnosis_result', args)).results;
+    console.log(result);
+    res.json(result);
 }));
 exports.default = app;
