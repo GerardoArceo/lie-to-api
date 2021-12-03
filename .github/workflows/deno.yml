@@ -21,4 +21,4 @@ jobs:
           sudo git reset --hard
           sudo git pull https://github.com/GerardoArceo/lie-to-api.git
           sudo npm install
-          pm2 update
+          /home/bitnami/.nvm/versions/node/v16.13.0/bin/pm2 update
