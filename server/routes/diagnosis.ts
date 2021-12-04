@@ -1,6 +1,7 @@
 import multer from 'multer';
 import express from "express";
 import MySQL from '../db/mysql';
+import { execPythonNN } from '../utils/python';
 
 const app = express();
 
@@ -25,45 +26,44 @@ app.post('/diagnosis', upload.single('myFile'), async (req, res, next) => {
         const error = new Error('Please upload a file')
         return next("hey error")
     }
-
+    
     let body = req.body;
     console.log(body);
 
-    const final_result = Math.random() > 0.5
-
-    const hit_probability = Math.floor(Math.random() * (100))
-
-    const response = {
-        ok: true,
-        final_result,
-        hit_probability: hit_probability + '%'
-    }
+    const eyeMovementResult = await execPythonNN('OjosNN', 'data_ojos.txt', 'resultado.txt');
+    const voiceSignalResult = await execPythonNN('VozNN', 'data_ojos.txt', 'resultado.txt');
+    const bpmResult = await execPythonNN('BPMNN', 'data_ojos.txt', 'resultado.txt');
+    const finalResult = await execPythonNN('FinalNN', 'data_ojos.txt', 'resultado.txt');
 
     if (body.isOnCalibrationMode == 'true') {
         const args = {
             user_id: body.uid,
-            bpm: body.bpm,
+            bpm_result: body.bpm,
             eye_movement: 50,
             voice_signal: 50,
         }
 
         const result = (await MySQL.executeSP('save_user_baseline_variables', args)).results;
-
         console.log(result);
-    } else {
+    } else {  
         const args = {
             user_id: body.uid,
-            final_result,
-            eye_movement_result: 50,
-            voice_signal_result: 50,
-            bpm_result: body.bpm,
-            hit_probability
+            final_result: finalResult.result,
+            eye_movement_result: eyeMovementResult.result,
+            voice_signal_result: voiceSignalResult.result,
+            bpm_result: bpmResult.result,
+            hit_probability: finalResult.hit_probability,
         }
 
         const result = (await MySQL.executeSP('save_diagnosis', args)).results;
         console.log(result);
     }
 
+    const response = {
+        ok: true,
+        final_result: finalResult.result,
+        hit_probability: finalResult.hit_probability + '%'
+    }
 
     res.json(response);
 })
@@ -82,6 +82,21 @@ app.post('/retroalimentation', async(req, res) => {
     console.log(result);
 
     res.json(result);
+});
+
+app.get('/test', async(req, res) => {
+    const eyeMovementResult = await execPythonNN('OjosNN', 'data_ojos.txt', 'resultado.txt');
+    const voiceSignalResult = await execPythonNN('VozNN', 'data_ojos.txt', 'resultado.txt');
+    const bpmResult = await execPythonNN('BPMNN', 'data_ojos.txt', 'resultado.txt');
+    const finalResult = await execPythonNN('FinalNN', 'data_ojos.txt', 'resultado.txt');
+
+    const response = {
+        ok: true,
+        final_result: finalResult.result,
+        hit_probability: finalResult.hit_probability + '%'
+    }
+
+    res.json(response);
 });
 
 export default app

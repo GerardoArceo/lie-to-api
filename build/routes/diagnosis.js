@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const multer_1 = __importDefault(require("multer"));
 const express_1 = __importDefault(require("express"));
 const mysql_1 = __importDefault(require("../db/mysql"));
+const python_1 = require("../utils/python");
 const app = (0, express_1.default)();
 app.use('/uploads', express_1.default.static(__dirname + '/uploads'));
 var storage = multer_1.default.diskStorage({
@@ -36,17 +37,14 @@ app.post('/diagnosis', upload.single('myFile'), (req, res, next) => __awaiter(vo
     }
     let body = req.body;
     console.log(body);
-    const final_result = Math.random() > 0.5;
-    const hit_probability = Math.floor(Math.random() * (100));
-    const response = {
-        ok: true,
-        final_result,
-        hit_probability: hit_probability + '%'
-    };
+    const eyeMovementResult = yield (0, python_1.execPythonNN)('OjosNN', 'data_ojos.txt', 'resultado.txt');
+    const voiceSignalResult = yield (0, python_1.execPythonNN)('VozNN', 'data_ojos.txt', 'resultado.txt');
+    const bpmResult = yield (0, python_1.execPythonNN)('BPMNN', 'data_ojos.txt', 'resultado.txt');
+    const finalResult = yield (0, python_1.execPythonNN)('FinalNN', 'data_ojos.txt', 'resultado.txt');
     if (body.isOnCalibrationMode == 'true') {
         const args = {
             user_id: body.uid,
-            bpm: body.bpm,
+            bpm_result: body.bpm,
             eye_movement: 50,
             voice_signal: 50,
         };
@@ -56,15 +54,20 @@ app.post('/diagnosis', upload.single('myFile'), (req, res, next) => __awaiter(vo
     else {
         const args = {
             user_id: body.uid,
-            final_result,
-            eye_movement_result: 50,
-            voice_signal_result: 50,
-            bpm_result: body.bpm,
-            hit_probability
+            final_result: finalResult.result,
+            eye_movement_result: eyeMovementResult.result,
+            voice_signal_result: voiceSignalResult.result,
+            bpm_result: bpmResult.result,
+            hit_probability: finalResult.hit_probability,
         };
         const result = (yield mysql_1.default.executeSP('save_diagnosis', args)).results;
         console.log(result);
     }
+    const response = {
+        ok: true,
+        final_result: finalResult.result,
+        hit_probability: finalResult.hit_probability + '%'
+    };
     res.json(response);
 }));
 app.post('/retroalimentation', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -77,5 +80,17 @@ app.post('/retroalimentation', (req, res) => __awaiter(void 0, void 0, void 0, f
     const result = (yield mysql_1.default.executeSP('update_diagnosis_result', args)).results;
     console.log(result);
     res.json(result);
+}));
+app.get('/test', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const eyeMovementResult = yield (0, python_1.execPythonNN)('OjosNN', 'data_ojos.txt', 'resultado.txt');
+    const voiceSignalResult = yield (0, python_1.execPythonNN)('VozNN', 'data_ojos.txt', 'resultado.txt');
+    const bpmResult = yield (0, python_1.execPythonNN)('BPMNN', 'data_ojos.txt', 'resultado.txt');
+    const finalResult = yield (0, python_1.execPythonNN)('FinalNN', 'data_ojos.txt', 'resultado.txt');
+    const response = {
+        ok: true,
+        final_result: finalResult.result,
+        hit_probability: finalResult.hit_probability + '%'
+    };
+    res.json(response);
 }));
 exports.default = app;
