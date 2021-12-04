@@ -7,6 +7,8 @@ interface Result {
 }
 
 export const execPythonNN = (NNFile: 'OjosNN' | 'VozNN' | 'BPMNN' | 'FinalNN', inputFile: string, outputFile: string) => {
+    inputFile = 'data_ojos.txt'
+    
     console.log(`PYTHON ${NNFile} STARTED`)
     return new Promise<Result>((resolve, reject) => {
         const command = `source ~/tensorflow-metal/bin/activate && python3 ./python/${NNFile}.py ./uploads/${inputFile} ./results/${outputFile}`;

@@ -106,7 +106,7 @@ modelo.fit(entradas, etiquetas, epochs = iteraciones, batch_size = tam_lote)
 
 data = {
     'result': True,
-    'hit_probability': 100
+    'hit_probability': 21
 }
 
 with open(nom_output, 'w') as outfile:

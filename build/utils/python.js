@@ -4,6 +4,7 @@ exports.execPythonNN = void 0;
 const { exec } = require('child_process');
 const fs = require('fs');
 const execPythonNN = (NNFile, inputFile, outputFile) => {
+    inputFile = 'data_ojos.txt';
     console.log(`PYTHON ${NNFile} STARTED`);
     return new Promise((resolve, reject) => {
         const command = `source ~/tensorflow-metal/bin/activate && python3 ./python/${NNFile}.py ./uploads/${inputFile} ./results/${outputFile}`;

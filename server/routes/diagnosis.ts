@@ -26,14 +26,22 @@ app.post('/diagnosis', upload.single('myFile'), async (req, res, next) => {
         const error = new Error('Please upload a file')
         return next("hey error")
     }
+    console.log(file.filename);
     
     let body = req.body;
-    console.log(body);
 
-    const eyeMovementResult = await execPythonNN('OjosNN', 'data_ojos.txt', 'resultado.txt');
-    const voiceSignalResult = await execPythonNN('VozNN', 'data_ojos.txt', 'resultado.txt');
-    const bpmResult = await execPythonNN('BPMNN', 'data_ojos.txt', 'resultado.txt');
-    const finalResult = await execPythonNN('FinalNN', 'data_ojos.txt', 'resultado.txt');
+    const promises = [
+        execPythonNN('OjosNN', file.filename, `${body.uid}-ojos.txt`),
+        execPythonNN('VozNN', file.filename, `${body.uid}-voz.txt`),
+        execPythonNN('BPMNN', file.filename, `${body.uid}-bpm.txt`)
+    ];
+    const pythonResults = await Promise.allSettled(promises)
+
+    const eyeMovementResult = pythonResults[0].status === 'fulfilled' ? pythonResults[0].value : {} as any;
+    const voiceSignalResult = pythonResults[1].status === 'fulfilled' ? pythonResults[1].value : {} as any;
+    const bpmResult = pythonResults[2].status === 'fulfilled' ? pythonResults[2].value : {} as any;
+    
+    const finalResult = await execPythonNN('FinalNN', file.filename, `${body.uid}-final.txt`);
 
     if (body.isOnCalibrationMode == 'true') {
         const args = {

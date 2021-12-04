@@ -35,12 +35,18 @@ app.post('/diagnosis', upload.single('myFile'), (req, res, next) => __awaiter(vo
         const error = new Error('Please upload a file');
         return next("hey error");
     }
+    console.log(file.filename);
     let body = req.body;
-    console.log(body);
-    const eyeMovementResult = yield (0, python_1.execPythonNN)('OjosNN', 'data_ojos.txt', 'resultado.txt');
-    const voiceSignalResult = yield (0, python_1.execPythonNN)('VozNN', 'data_ojos.txt', 'resultado.txt');
-    const bpmResult = yield (0, python_1.execPythonNN)('BPMNN', 'data_ojos.txt', 'resultado.txt');
-    const finalResult = yield (0, python_1.execPythonNN)('FinalNN', 'data_ojos.txt', 'resultado.txt');
+    const promises = [
+        (0, python_1.execPythonNN)('OjosNN', file.filename, `${body.uid}-ojos.txt`),
+        (0, python_1.execPythonNN)('VozNN', file.filename, `${body.uid}-voz.txt`),
+        (0, python_1.execPythonNN)('BPMNN', file.filename, `${body.uid}-bpm.txt`)
+    ];
+    const pythonResults = yield Promise.allSettled(promises);
+    const eyeMovementResult = pythonResults[0].status === 'fulfilled' ? pythonResults[0].value : {};
+    const voiceSignalResult = pythonResults[1].status === 'fulfilled' ? pythonResults[1].value : {};
+    const bpmResult = pythonResults[2].status === 'fulfilled' ? pythonResults[2].value : {};
+    const finalResult = yield (0, python_1.execPythonNN)('FinalNN', file.filename, `${body.uid}-final.txt`);
     if (body.isOnCalibrationMode == 'true') {
         const args = {
             user_id: body.uid,
