@@ -7,12 +7,12 @@ import diagnosis from './routes/diagnosis';
 
 export const app = express();
 
-app.use(user);
-app.use(diagnosis);
-
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use(user);
+app.use(diagnosis);
 
 app.listen(PORT, () => console.log(`🚀 Lie to API running on port: ${PORT} - ${NODE_ENV}`));
 

@@ -1,7 +1,7 @@
 import multer from 'multer';
 import express from "express";
 import MySQL from '../db/mysql';
-import { execPythonNN } from '../utils/python';
+import { execPythonNN, moveSoundFile, writeTrainingFile } from '../utils/python';
 
 const app = express();
 
@@ -9,9 +9,9 @@ app.use('/uploads', express.static(__dirname + '/uploads'));
 
 interface DiagnosisPayload {
     uid: string
-    bpm: string
-    isOnCalibrationMode: string
+    heartData: string
     eyeTrackingData: string
+    mode: 'diagnosis' | 'calibration' | 'trainingTruth' | 'trainingLie'
 }
 
 var storageVoiceFile = multer.diskStorage({
@@ -20,7 +20,7 @@ var storageVoiceFile = multer.diskStorage({
     },
     filename: (req, file, cb) => {
         let body = req.body;
-        cb(null, `${body.uid}-voz.mp4`)
+        cb(null, `${body.uid}-voz.${file.originalname.split('.').pop()}`)
     }
 })
 
@@ -36,12 +36,20 @@ app.post('/diagnosis', uploadVoiceFile.single('myFile'), async (req, res, next) 
     }
     
     let body: DiagnosisPayload = req.body;
-    if (body.eyeTrackingData === '[]') body.eyeTrackingData = '[1,1,1,1,1,1,1,1,1,1,1,1,,1,1,1,1,1,1]';
+
+    if (body.mode == 'trainingLie' || body.mode == 'trainingTruth') {
+        const now = new Date().toISOString();
+        writeTrainingFile(body.mode, body.eyeTrackingData, `${now}-ojos.txt`)
+        writeTrainingFile(body.mode, body.heartData, `${now}-bpm.txt`)
+        moveSoundFile(body.mode, file.filename, `${now}-voz.${file.originalname.split('.').pop()}`)
+        res.json({ok: true});
+        return;
+    }
 
     const promises = [
         execPythonNN('OjosNN', body.eyeTrackingData, `${body.uid}-ojos.txt`, `${body.uid}-ojos.txt`),
-        execPythonNN('VozNN', null, `${body.uid}-voz.mp4`, `${body.uid}-voz.txt`),
-        execPythonNN('BPMNN', body.bpm, `${body.uid}-bpm.txt`, `${body.uid}-bpm.txt`)
+        execPythonNN('VozNN', null, file.filename, `${body.uid}-voz.txt`),
+        execPythonNN('BPMNN', body.heartData, `${body.uid}-bpm.txt`, `${body.uid}-bpm.txt`)
     ];
     const pythonResults = await Promise.allSettled(promises)
 
@@ -51,10 +59,10 @@ app.post('/diagnosis', uploadVoiceFile.single('myFile'), async (req, res, next) 
     
     const finalResult = await execPythonNN('FinalNN', null, file.filename, `${body.uid}-final.txt`);
 
-    if (body.isOnCalibrationMode == 'true') {
+    if (body.mode == 'calibration') {
         const args = {
-            user_id: body.uid,
-            bpm_result: body.bpm,
+            google_id: body.uid,
+            bpm_result: 50,
             eye_movement: 50,
             voice_signal: 50,
         }
@@ -63,11 +71,11 @@ app.post('/diagnosis', uploadVoiceFile.single('myFile'), async (req, res, next) 
         console.log(result);
     } else {  
         const args = {
-            user_id: body.uid,
+            google_id: body.uid,
             final_result: finalResult.result,
-            eye_movement_result: eyeMovementResult.result,
-            voice_signal_result: voiceSignalResult.result,
-            bpm_result: bpmResult.result,
+            eye_movement_result: eyeMovementResult.hit_probability,
+            voice_signal_result: voiceSignalResult.hit_probability,
+            bpm_result: bpmResult.hit_probability,
             hit_probability: finalResult.hit_probability,
         }
 
@@ -83,14 +91,19 @@ app.post('/diagnosis', uploadVoiceFile.single('myFile'), async (req, res, next) 
     res.json(response);
 })
 
+
+interface RetroalimentationPayload {
+    uid: string
+    was_right: string
+}
 app.post('/retroalimentation', async(req, res) => {
 
-    let body = req.body;
-    console.log(body);
+    let body: RetroalimentationPayload = req.body;
+    console.log({body});
 
     const args = {
-        id: body.id,
-        was_right: body.was_right
+        google_id: body.uid,
+        was_right: body.was_right === 'true' 
     }
 
     const result = (await MySQL.executeSP('update_diagnosis_result', args)).results;

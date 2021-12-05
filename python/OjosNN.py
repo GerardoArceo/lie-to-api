@@ -19,13 +19,13 @@ datos = np.array(json.loads(datos)).astype(float)   #Separa el texto, convierte 
 
 # Obtener modelo entrenado
 # Carga json y crea modelo
-json_archivo = open('modelo.json', 'r')
+json_archivo = open('models/modelo.json', 'r')
 red_modelo_json = json_archivo.read()
 json_archivo.close()
 red_modelo = model_from_json(red_modelo_json)
 
 # Carga los pesos al modelo
-red_modelo.load_weights("modelo.h5")
+red_modelo.load_weights("models/modelo.h5")
 print("Modelo cargado")
  
 # Compila el modelo

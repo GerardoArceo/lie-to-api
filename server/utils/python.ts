@@ -35,3 +35,20 @@ export const execPythonNN = (NNFile: 'OjosNN' | 'VozNN' | 'BPMNN' | 'FinalNN', d
         });
     });
 }
+
+export const writeTrainingFile = (mode: 'trainingTruth' | 'trainingLie', data: any, inputFile: string) => {
+  if (mode === 'trainingTruth') {
+    if (data) fs.writeFileSync(`./training/truths/${inputFile}`, data);
+  } else if (mode === 'trainingLie') {
+    if (data) fs.writeFileSync(`./training/lies/${inputFile}`, data);
+  }
+}
+
+export const moveSoundFile = (mode: 'trainingTruth' | 'trainingLie', audioFile: string, inputFile: string) => {
+  if (mode === 'trainingTruth') {
+    fs.renameSync(`./uploads/${audioFile}`, `./training/truths/${inputFile}`)
+  } else if (mode === 'trainingLie') {
+    fs.renameSync(`./uploads/${audioFile}`, `./training/lies/${inputFile}`)
+  }
+
+}

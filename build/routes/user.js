@@ -17,33 +17,22 @@ const mysql_1 = __importDefault(require("../db/mysql"));
 const app = (0, express_1.default)();
 app.post('/saveUser', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let body = req.body;
-    console.log(body);
     const args = {
-        nickname: body.nickname,
-        google_id: body.google_id,
+        google_id: body.uid,
         email: body.email,
-        pass: body.pass,
+        nickname: body.nickname,
     };
-    const result = (yield mysql_1.default.executeSP('save_user', args)).results;
-    console.log(result);
-    res.json(result);
+    const ok = (yield mysql_1.default.executeSP('save_user', args)).ok;
+    res.json({ ok });
 }));
 app.get('/getUserBaselineVariables', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let user_id = req.query.user_id;
-    const result = (yield mysql_1.default.executeSP('get_user_baseline_variables', user_id)).results;
-    console.log(result);
+    let uid = req.query.uid;
+    const result = (yield mysql_1.default.executeSP('get_user_baseline_variables', { uid })).results;
     res.json(result);
 }));
 app.get('/get_user_diagnosis', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let user_id = req.query.user_id;
-    const result = (yield mysql_1.default.executeSP('get_user_diagnosis', user_id)).results;
-    console.log(result);
-    res.json(result);
-}));
-app.get('/get_user', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    let user_id = req.query.user_id;
-    const result = (yield mysql_1.default.executeSP('get_user', user_id)).results;
-    console.log(result);
+    let uid = req.query.uid;
+    const result = (yield mysql_1.default.executeSP('get_user_diagnosis', { uid })).results;
     res.json(result);
 }));
 exports.default = app;

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.execPythonNN = void 0;
+exports.moveSoundFile = exports.writeTrainingFile = exports.execPythonNN = void 0;
 const { exec } = require('child_process');
 const fs = require('fs');
 const execPythonNN = (NNFile, data, inputFile, outputFile) => {
@@ -29,3 +29,23 @@ const execPythonNN = (NNFile, data, inputFile, outputFile) => {
     });
 };
 exports.execPythonNN = execPythonNN;
+const writeTrainingFile = (mode, data, inputFile) => {
+    if (mode === 'trainingTruth') {
+        if (data)
+            fs.writeFileSync(`./training/truths/${inputFile}`, data);
+    }
+    else if (mode === 'trainingLie') {
+        if (data)
+            fs.writeFileSync(`./training/lies/${inputFile}`, data);
+    }
+};
+exports.writeTrainingFile = writeTrainingFile;
+const moveSoundFile = (mode, audioFile, inputFile) => {
+    if (mode === 'trainingTruth') {
+        fs.renameSync(`./uploads/${audioFile}`, `./training/truths/${inputFile}`);
+    }
+    else if (mode === 'trainingLie') {
+        fs.renameSync(`./uploads/${audioFile}`, `./training/lies/${inputFile}`);
+    }
+};
+exports.moveSoundFile = moveSoundFile;
