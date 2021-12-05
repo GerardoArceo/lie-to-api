@@ -18,7 +18,7 @@ app.listen(PORT, () => console.log(`🚀 Lie to API running on port: ${PORT} - $
 
 app.get('/', (req, res) => {
     const data = {
-        app: 'Lie to Api 2',
+        app: 'Lie to Api',
         nombre: 'Gerardo Arceo',
         mensaje: 'Sé feliz :)'
     };

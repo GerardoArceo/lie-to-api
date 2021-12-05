@@ -3,8 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.execPythonNN = void 0;
 const { exec } = require('child_process');
 const fs = require('fs');
-const execPythonNN = (NNFile, inputFile, outputFile) => {
-    inputFile = 'data_ojos.txt';
+const execPythonNN = (NNFile, data, inputFile, outputFile) => {
+    if (data)
+        fs.writeFileSync(`./uploads/${inputFile}`, data);
     console.log(`PYTHON ${NNFile} STARTED`);
     return new Promise((resolve, reject) => {
         const command = `source ~/tensorflow-metal/bin/activate && python3 ./python/${NNFile}.py ./uploads/${inputFile} ./results/${outputFile}`;
@@ -23,8 +24,6 @@ const execPythonNN = (NNFile, inputFile, outputFile) => {
                     console.log(`PYTHON ${NNFile} FINISHED WITH RESULT: `, result);
                     resolve(result);
                 });
-                console.log(`stdout: ${stdout}`);
-                console.log(`stderr: ${stderr}`);
             }
         });
     });

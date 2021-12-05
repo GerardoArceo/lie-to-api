@@ -7,7 +7,7 @@ exports.NODE_ENV = process.env.NODE_ENV || 'prod';
 exports.RECAPTCHA_KEY = process.env.RECAPTCHA_KEY || 'key';
 exports.PORT = 3003;
 exports.HOST_DB = process.env.HOST_DB = "127.0.0.1";
-exports.PORT_DB = exports.NODE_ENV === 'dev' ? 3307 : 3306;
+exports.PORT_DB = 3306;
 exports.USER_DB = process.env.USER_DB || "root";
 exports.PASS_DB = process.env.PASS_DB || "Gutopia12$HxH$";
 exports.DATABASE_NAME = process.env.DATABASE_NAME || "lie_to_db";

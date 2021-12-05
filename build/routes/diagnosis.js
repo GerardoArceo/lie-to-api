@@ -18,35 +18,37 @@ const mysql_1 = __importDefault(require("../db/mysql"));
 const python_1 = require("../utils/python");
 const app = (0, express_1.default)();
 app.use('/uploads', express_1.default.static(__dirname + '/uploads'));
-var storage = multer_1.default.diskStorage({
+var storageVoiceFile = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'uploads');
     },
     filename: (req, file, cb) => {
-        cb(null, new Date().toISOString() + file.originalname);
+        let body = req.body;
+        cb(null, `${body.uid}-voz.mp4`);
     }
 });
-var upload = (0, multer_1.default)({
-    storage: storage
+var uploadVoiceFile = (0, multer_1.default)({
+    storage: storageVoiceFile
 });
-app.post('/diagnosis', upload.single('myFile'), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+app.post('/diagnosis', uploadVoiceFile.single('myFile'), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const file = req.file;
     if (!file) {
         const error = new Error('Please upload a file');
         return next("hey error");
     }
-    console.log(file.filename);
     let body = req.body;
+    if (body.eyeTrackingData === '[]')
+        body.eyeTrackingData = '[1,1,1,1,1,1,1,1,1,1,1,1,,1,1,1,1,1,1]';
     const promises = [
-        (0, python_1.execPythonNN)('OjosNN', file.filename, `${body.uid}-ojos.txt`),
-        (0, python_1.execPythonNN)('VozNN', file.filename, `${body.uid}-voz.txt`),
-        (0, python_1.execPythonNN)('BPMNN', file.filename, `${body.uid}-bpm.txt`)
+        (0, python_1.execPythonNN)('OjosNN', body.eyeTrackingData, `${body.uid}-ojos.txt`, `${body.uid}-ojos.txt`),
+        (0, python_1.execPythonNN)('VozNN', null, `${body.uid}-voz.mp4`, `${body.uid}-voz.txt`),
+        (0, python_1.execPythonNN)('BPMNN', body.bpm, `${body.uid}-bpm.txt`, `${body.uid}-bpm.txt`)
     ];
     const pythonResults = yield Promise.allSettled(promises);
     const eyeMovementResult = pythonResults[0].status === 'fulfilled' ? pythonResults[0].value : {};
     const voiceSignalResult = pythonResults[1].status === 'fulfilled' ? pythonResults[1].value : {};
     const bpmResult = pythonResults[2].status === 'fulfilled' ? pythonResults[2].value : {};
-    const finalResult = yield (0, python_1.execPythonNN)('FinalNN', file.filename, `${body.uid}-final.txt`);
+    const finalResult = yield (0, python_1.execPythonNN)('FinalNN', null, file.filename, `${body.uid}-final.txt`);
     if (body.isOnCalibrationMode == 'true') {
         const args = {
             user_id: body.uid,
@@ -67,7 +69,6 @@ app.post('/diagnosis', upload.single('myFile'), (req, res, next) => __awaiter(vo
             hit_probability: finalResult.hit_probability,
         };
         const result = (yield mysql_1.default.executeSP('save_diagnosis', args)).results;
-        console.log(result);
     }
     const response = {
         ok: true,
@@ -84,19 +85,6 @@ app.post('/retroalimentation', (req, res) => __awaiter(void 0, void 0, void 0, f
         was_right: body.was_right
     };
     const result = (yield mysql_1.default.executeSP('update_diagnosis_result', args)).results;
-    console.log(result);
     res.json(result);
-}));
-app.get('/test', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const eyeMovementResult = yield (0, python_1.execPythonNN)('OjosNN', 'data_ojos.txt', 'resultado.txt');
-    const voiceSignalResult = yield (0, python_1.execPythonNN)('VozNN', 'data_ojos.txt', 'resultado.txt');
-    const bpmResult = yield (0, python_1.execPythonNN)('BPMNN', 'data_ojos.txt', 'resultado.txt');
-    const finalResult = yield (0, python_1.execPythonNN)('FinalNN', 'data_ojos.txt', 'resultado.txt');
-    const response = {
-        ok: true,
-        final_result: finalResult.result,
-        hit_probability: finalResult.hit_probability + '%'
-    };
-    res.json(response);
 }));
 exports.default = app;

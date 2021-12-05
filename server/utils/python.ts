@@ -6,9 +6,9 @@ interface Result {
   hit_probability        : number
 }
 
-export const execPythonNN = (NNFile: 'OjosNN' | 'VozNN' | 'BPMNN' | 'FinalNN', inputFile: string, outputFile: string) => {
-    inputFile = 'data_ojos.txt'
-    
+export const execPythonNN = (NNFile: 'OjosNN' | 'VozNN' | 'BPMNN' | 'FinalNN', data: any, inputFile: string, outputFile: string) => {
+    if (data) fs.writeFileSync(`./uploads/${inputFile}`, data);
+
     console.log(`PYTHON ${NNFile} STARTED`)
     return new Promise<Result>((resolve, reject) => {
         const command = `source ~/tensorflow-metal/bin/activate && python3 ./python/${NNFile}.py ./uploads/${inputFile} ./results/${outputFile}`;
@@ -29,8 +29,8 @@ export const execPythonNN = (NNFile: 'OjosNN' | 'VozNN' | 'BPMNN' | 'FinalNN', i
             })
 
             // the *entire* stdout and stderr (buffered)
-            console.log(`stdout: ${stdout}`);
-            console.log(`stderr: ${stderr}`);
+            // console.log(`stdout: ${stdout}`);
+            // console.log(`stderr: ${stderr}`);
           }
         });
     });

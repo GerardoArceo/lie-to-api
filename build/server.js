@@ -18,7 +18,7 @@ exports.app.use(express_1.default.urlencoded({ extended: true }));
 exports.app.listen(constants_1.PORT, () => console.log(`🚀 Lie to API running on port: ${constants_1.PORT} - ${constants_1.NODE_ENV}`));
 exports.app.get('/', (req, res) => {
     const data = {
-        app: 'Lie to Api 2',
+        app: 'Lie to Api',
         nombre: 'Gerardo Arceo',
         mensaje: 'Sé feliz :)'
     };
