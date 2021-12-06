@@ -21,7 +21,7 @@ var storageVoiceFile = multer.diskStorage({
     },
     filename: (req, file, cb) => {
         let body = req.body;
-        cb(null, `${body.uid}-voz.${file.originalname.split('.').pop()}`)
+        cb(null, `${body.uid}-voz.mp4`)
     }
 })
 
@@ -39,7 +39,7 @@ app.post('/diagnosis', uploadVoiceFile.single('audioFile'), async (req, res, nex
     let body: DiagnosisPayload = req.body;
     
     try {
-        const transformAudioToWavResponse = await transformAudioToWav(file.filename, `${body.uid}-voz.wav`);
+        await transformAudioToWav(file.filename);
     } catch (error) {
         res.json({ok: false});
         return;
@@ -58,9 +58,9 @@ app.post('/diagnosis', uploadVoiceFile.single('audioFile'), async (req, res, nex
     }
 
     const promises = [
-        execPythonNN('OjosNN', body.eyeTrackingData, `${body.uid}-ojos.txt`, `${body.uid}-ojos.txt`),
-        execPythonNN('VozNN', null, file.filename, `${body.uid}-voz.txt`),
-        execPythonNN('BPMNN', body.heartData, `${body.uid}-bpm.txt`, `${body.uid}-bpm.txt`)
+        execPythonNN('ojosNN', body.uid, body.eyeTrackingData),
+        execPythonNN('bpmNN', body.uid, body.heartData),
+        execPythonNN('vozNN', body.uid),
     ];
     const pythonResults = await Promise.allSettled(promises)
 
@@ -68,7 +68,7 @@ app.post('/diagnosis', uploadVoiceFile.single('audioFile'), async (req, res, nex
     const voiceSignalResult = pythonResults[1].status === 'fulfilled' ? pythonResults[1].value : {} as any;
     const bpmResult = pythonResults[2].status === 'fulfilled' ? pythonResults[2].value : {} as any;
     
-    const finalResult = await execPythonNN('FinalNN', null, file.filename, `${body.uid}-final.txt`);
+    const finalResult = await execPythonNN('finalNN', body.uid);
 
     if (body.mode == 'calibration') {
         const args = {
@@ -83,9 +83,9 @@ app.post('/diagnosis', uploadVoiceFile.single('audioFile'), async (req, res, nex
         const args = {
             google_id: body.uid,
             final_result: finalResult.result,
-            eye_movement_result: eyeMovementResult.hit_probability,
-            voice_signal_result: voiceSignalResult.hit_probability,
-            bpm_result: bpmResult.hit_probability,
+            eye_movement_result: eyeMovementResult.result,
+            voice_signal_result: voiceSignalResult.result,
+            bpm_result: bpmResult.result,
             hit_probability: finalResult.hit_probability,
         }
 

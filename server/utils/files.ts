@@ -24,16 +24,16 @@ export const writeTrainingFile = (mode: 'trainingTruth' | 'trainingLie', data: a
     }
   }
   
-  export const transformAudioToWav = (soundFile: string, outputFile: string) => {
+  export const transformAudioToWav = (filename: string) => {
     return new Promise((resolve,reject) => {
       ffmpeg()
-        .input(`data/gadget/${soundFile}`)
+        .input(`data/gadget/${filename}`)
         .inputFormat('mp4')
-        .output(`data/gadget/${soundFile.split('.')[0]}.wav`)
+        .output(`data/gadget/${filename.split('.')[0]}.wav`)
         .outputFormat('wav')
         .on('end', () => {
           resolve('ok')
-          fs.unlinkSync(`data/gadget/${soundFile}`)
+          fs.unlinkSync(`data/gadget/${filename}`)
         })
         .on('error',(err: string)=>{
           return reject(new Error(err))

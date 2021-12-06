@@ -1,0 +1,27 @@
+PREGUNTAS QUE SE RESPONDEN CON SI:
+1. ¿Eres una estudiante de ingeniería biónica?
+2. ¿Alguna vez has publicado algo en Facebook?
+3. ¿Alguna vez te has enamorado?
+4. ¿Has vivido en México toda tu vida?
+5. ¿Alguna vez has tomado una clase en línea?
+6. ¿Alguna vez has viajado en avión?
+7. ¿Alguna vez has cortado tu propio cabello?
+8. ¿Alguna vez has cantado mientras te bañas?
+
+PREGUNTAS QUE SE RESPONDEN CON NO:
+1. ¿Alguna vez te han arrestado?
+2. ¿Eres egresada del MIT?
+3. ¿Alguna vez has comprado un arma de fuego?
+4. ¿Tienes 41 años de edad?
+5. ¿Tu nombre es Silvia?
+6. ¿Actualmente trabajas en Google?
+7. ¿Alguna vez te has roto un hueso?
+8. ¿Practicas la religión musulmana?
+
+PREGUNTAS DE DISTRACCION:
+1. ¿Aluna vez has sentido que tu vida no tiene sentido?
+2. ¿Alguna vez le has mentido a alguien?
+3. ¿Alguna vez has tenido una experiencia sobrenatural?
+4. ¿Alguna vez has sentido que vivimos en una simulación?
+5. ¿Alguna vez has sentido que una parte de tu cuerpo no te pertenece?
+6. ¿Alguna vez has estado en otro planeta?

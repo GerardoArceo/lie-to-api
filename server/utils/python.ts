@@ -2,34 +2,58 @@ const { exec } = require('child_process');
 const fs = require('fs')
 
 interface Result {
-  result                 : number,
-  hit_probability        : number
+  result                 : boolean,
+  hit_probability       ?: number
 }
 
-export const execPythonNN = (NNFile: 'OjosNN' | 'VozNN' | 'BPMNN' | 'FinalNN', data: any, inputFile: string, outputFile: string) => {
-    if (data) fs.writeFileSync(`data/gadget/${inputFile}`, data);
+export const execPythonNN = (NNFile: 'ojosNN' | 'vozNN' | 'bpmNN' | 'finalNN', uid: string, data?: any) => {
+    let inputPath: string
+    let outputPath: string
+    switch (NNFile) {
+      case 'ojosNN':
+        inputPath = `data/gadget/${uid}-ojos.txt`
+        outputPath = `data/results/${uid}-ojos.txt`
+        break
+      case 'bpmNN':
+        inputPath = `data/gadget/${uid}-bpm.txt`
+        outputPath = `data/results/${uid}-bpm.txt`
+        break
+      case 'vozNN':
+        inputPath = `data/gadget/${uid}-voz.wav`
+        outputPath = `data/results/${uid}-voz.txt`
+        break
+      case 'finalNN':
+        inputPath = `data/results/${uid}-ojos.txt data/results/${uid}-bpm.txt data/results/${uid}-voz.txt`
+        outputPath = `data/results/${uid}-final.txt`
+        break
+    }
+
+    if (data) fs.writeFileSync(inputPath, data);
 
     return new Promise<Result>((resolve, reject) => {
-        const command = `source ~/tensorflow-metal/bin/activate && python3 python/${NNFile}.py data/gadget/${inputFile} data/results/${outputFile}`;
+        let command = `source ~/tensorflow-metal/bin/activate && python3 python/${NNFile}.py ${inputPath} ${outputPath}`;
+        console.log('🐍 START:', command);
         exec(command, (err: any, stdout: any, stderr: any) => {
           if (err) {
             reject(err);
             //some err occurred
             console.error(err)
           } else {
-            fs.readFile(`data/results/${outputFile}`, 'utf8' , (err: any, data: any) => {
+            fs.readFile(outputPath, 'utf8' , (err: any, data: any) => {
               if (err) {
                 console.error(err)
                 return
               }
-              const result = JSON.parse(data)
-              console.log(`PYTHON ${NNFile} FINISHED WITH RESULT: `, result);
-              resolve(result);
+              if (NNFile === 'finalNN') {
+                const res = parseFloat(data) * 100 * 100
+                let hit_probability = res < 50 ? 100 - res : res
+                hit_probability = Number(hit_probability.toFixed(2))
+                console.log('🐍 RESPONSE: ' + res);
+                resolve({result: res > 50, hit_probability});
+                return;
+              }
+              resolve({result: true});
             })
-
-            // the *entire* stdout and stderr (buffered)
-            // console.log(`stdout: ${stdout}`);
-            // console.log(`stderr: ${stderr}`);
           }
         });
     });
