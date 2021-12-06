@@ -30,6 +30,7 @@ app.get('/getUserBaselineVariables', async(req, res) => {
 app.get('/get_user_diagnosis', async(req, res) => {
     let uid = req.query.uid;
     const result = (await MySQL.executeSP('get_user_diagnosis', {uid})).results;
+    console.log(result);
     res.json(result);
 });
 

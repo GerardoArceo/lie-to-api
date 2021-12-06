@@ -38,7 +38,12 @@ app.post('/diagnosis', uploadVoiceFile.single('audioFile'), async (req, res, nex
     
     let body: DiagnosisPayload = req.body;
     
-    const transformAudioToWavResponse = await transformAudioToWav(file.filename, `${body.uid}-voz.wav`);
+    try {
+        const transformAudioToWavResponse = await transformAudioToWav(file.filename, `${body.uid}-voz.wav`);
+    } catch (error) {
+        res.json({ok: false});
+        return;
+    }
 
     if (body.mode == 'trainingLie' || body.mode == 'trainingTruth') {
         const now = Date.now();

@@ -33,6 +33,7 @@ app.get('/getUserBaselineVariables', (req, res) => __awaiter(void 0, void 0, voi
 app.get('/get_user_diagnosis', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let uid = req.query.uid;
     const result = (yield mysql_1.default.executeSP('get_user_diagnosis', { uid })).results;
+    console.log(result);
     res.json(result);
 }));
 exports.default = app;

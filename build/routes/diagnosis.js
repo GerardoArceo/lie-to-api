@@ -38,7 +38,13 @@ app.post('/diagnosis', uploadVoiceFile.single('audioFile'), (req, res, next) => 
         return next(error);
     }
     let body = req.body;
-    const transformAudioToWavResponse = yield (0, files_1.transformAudioToWav)(file.filename, `${body.uid}-voz.wav`);
+    try {
+        const transformAudioToWavResponse = yield (0, files_1.transformAudioToWav)(file.filename, `${body.uid}-voz.wav`);
+    }
+    catch (error) {
+        res.json({ ok: false });
+        return;
+    }
     if (body.mode == 'trainingLie' || body.mode == 'trainingTruth') {
         const now = Date.now();
         (0, files_1.writeTrainingFile)(body.mode, body.eyeTrackingData, `${now}-ojos.txt`);
