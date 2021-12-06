@@ -29,7 +29,7 @@ var uploadVoiceFile = multer({
     storage: storageVoiceFile
 })
 
-app.post('/diagnosis', uploadVoiceFile.single('myFile'), async (req, res, next) => {
+app.post('/diagnosis', uploadVoiceFile.single('audioFile'), async (req, res, next) => {
     const file = req.file
     if (!file) {
         const error = new Error('Please upload a file')

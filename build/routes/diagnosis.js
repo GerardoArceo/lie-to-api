@@ -31,7 +31,7 @@ var storageVoiceFile = multer_1.default.diskStorage({
 var uploadVoiceFile = (0, multer_1.default)({
     storage: storageVoiceFile
 });
-app.post('/diagnosis', uploadVoiceFile.single('myFile'), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+app.post('/diagnosis', uploadVoiceFile.single('audioFile'), (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const file = req.file;
     if (!file) {
         const error = new Error('Please upload a file');
