@@ -1,21 +1,20 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.moveSoundFile = exports.writeTrainingFile = exports.execPythonNN = void 0;
+exports.execPythonNN = void 0;
 const { exec } = require('child_process');
 const fs = require('fs');
 const execPythonNN = (NNFile, data, inputFile, outputFile) => {
     if (data)
-        fs.writeFileSync(`./data/${inputFile}`, data);
-    console.log(`PYTHON ${NNFile} STARTED`);
+        fs.writeFileSync(`data/gadget/${inputFile}`, data);
     return new Promise((resolve, reject) => {
-        const command = `source ~/tensorflow-metal/bin/activate && python3 ./python/${NNFile}.py ./data/${inputFile} ./results/${outputFile}`;
+        const command = `source ~/tensorflow-metal/bin/activate && python3 python/${NNFile}.py data/gadget/${inputFile} data/results/${outputFile}`;
         exec(command, (err, stdout, stderr) => {
             if (err) {
                 reject(err);
                 console.error(err);
             }
             else {
-                fs.readFile(`./results/${outputFile}`, 'utf8', (err, data) => {
+                fs.readFile(`data/results/${outputFile}`, 'utf8', (err, data) => {
                     if (err) {
                         console.error(err);
                         return;
@@ -29,23 +28,3 @@ const execPythonNN = (NNFile, data, inputFile, outputFile) => {
     });
 };
 exports.execPythonNN = execPythonNN;
-const writeTrainingFile = (mode, data, inputFile) => {
-    if (mode === 'trainingTruth') {
-        if (data)
-            fs.writeFileSync(`./training/truths/${inputFile}`, data);
-    }
-    else if (mode === 'trainingLie') {
-        if (data)
-            fs.writeFileSync(`./training/lies/${inputFile}`, data);
-    }
-};
-exports.writeTrainingFile = writeTrainingFile;
-const moveSoundFile = (mode, audioFile, inputFile) => {
-    if (mode === 'trainingTruth') {
-        fs.renameSync(`./data/${audioFile}`, `./training/truths/${inputFile}`);
-    }
-    else if (mode === 'trainingLie') {
-        fs.renameSync(`./data/${audioFile}`, `./training/lies/${inputFile}`);
-    }
-};
-exports.moveSoundFile = moveSoundFile;
