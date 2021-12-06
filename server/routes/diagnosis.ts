@@ -1,22 +1,23 @@
 import multer from 'multer';
 import express from "express";
 import MySQL from '../db/mysql';
-import { execPythonNN, moveSoundFile, writeTrainingFile } from '../utils/python';
+import { execPythonNN } from '../utils/python';
+import { transformAudioToWav, moveSoundFile, writeTrainingFile } from '../utils/files';
 
 const app = express();
 
-app.use('/uploads', express.static(__dirname + '/uploads'));
+app.use('/data/gadget', express.static(__dirname + '/data/gadget'));
 
 interface DiagnosisPayload {
     uid: string
     heartData: string
     eyeTrackingData: string
-    mode: 'diagnosis' | 'calibration' | 'trainingTruth' | 'trainingLie'
+    mode: 'diagnosis' | 'calibration' | 'trainingTruth' | 'trainingLie' | 'testing'
 }
 
 var storageVoiceFile = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads')
+        cb(null, 'data/gadget')
     },
     filename: (req, file, cb) => {
         let body = req.body;
@@ -32,16 +33,21 @@ app.post('/diagnosis', uploadVoiceFile.single('myFile'), async (req, res, next) 
     const file = req.file
     if (!file) {
         const error = new Error('Please upload a file')
-        return next("hey error")
+        return next(error)
     }
     
     let body: DiagnosisPayload = req.body;
+    
+    const transformAudioToWavResponse = await transformAudioToWav(file.filename, `${body.uid}-voz.wav`);
 
     if (body.mode == 'trainingLie' || body.mode == 'trainingTruth') {
-        const now = new Date().toISOString();
+        const now = Date.now();
         writeTrainingFile(body.mode, body.eyeTrackingData, `${now}-ojos.txt`)
         writeTrainingFile(body.mode, body.heartData, `${now}-bpm.txt`)
-        moveSoundFile(body.mode, file.filename, `${now}-voz.${file.originalname.split('.').pop()}`)
+        moveSoundFile(body.mode, `${body.uid}-voz.wav`, `${now}-voz.wav`)
+        res.json({ok: true});
+        return;
+    } else if (body.mode == 'testing') {
         res.json({ok: true});
         return;
     }
@@ -67,9 +73,8 @@ app.post('/diagnosis', uploadVoiceFile.single('myFile'), async (req, res, next) 
             voice_signal: 50,
         }
 
-        const result = (await MySQL.executeSP('save_user_baseline_variables', args)).results;
-        console.log(result);
-    } else {  
+        await MySQL.executeSP('save_user_baseline_variables', args);
+    } else if (body.mode == 'diagnosis') {  
         const args = {
             google_id: body.uid,
             final_result: finalResult.result,
@@ -79,7 +84,7 @@ app.post('/diagnosis', uploadVoiceFile.single('myFile'), async (req, res, next) 
             hit_probability: finalResult.hit_probability,
         }
 
-        const result = (await MySQL.executeSP('save_diagnosis', args)).results;
+        await MySQL.executeSP('save_diagnosis', args);
     }
 
     const response = {

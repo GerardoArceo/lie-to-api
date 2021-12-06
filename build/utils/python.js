@@ -5,10 +5,10 @@ const { exec } = require('child_process');
 const fs = require('fs');
 const execPythonNN = (NNFile, data, inputFile, outputFile) => {
     if (data)
-        fs.writeFileSync(`./uploads/${inputFile}`, data);
+        fs.writeFileSync(`./data/${inputFile}`, data);
     console.log(`PYTHON ${NNFile} STARTED`);
     return new Promise((resolve, reject) => {
-        const command = `source ~/tensorflow-metal/bin/activate && python3 ./python/${NNFile}.py ./uploads/${inputFile} ./results/${outputFile}`;
+        const command = `source ~/tensorflow-metal/bin/activate && python3 ./python/${NNFile}.py ./data/${inputFile} ./results/${outputFile}`;
         exec(command, (err, stdout, stderr) => {
             if (err) {
                 reject(err);
@@ -42,10 +42,10 @@ const writeTrainingFile = (mode, data, inputFile) => {
 exports.writeTrainingFile = writeTrainingFile;
 const moveSoundFile = (mode, audioFile, inputFile) => {
     if (mode === 'trainingTruth') {
-        fs.renameSync(`./uploads/${audioFile}`, `./training/truths/${inputFile}`);
+        fs.renameSync(`./data/${audioFile}`, `./training/truths/${inputFile}`);
     }
     else if (mode === 'trainingLie') {
-        fs.renameSync(`./uploads/${audioFile}`, `./training/lies/${inputFile}`);
+        fs.renameSync(`./data/${audioFile}`, `./training/lies/${inputFile}`);
     }
 };
 exports.moveSoundFile = moveSoundFile;

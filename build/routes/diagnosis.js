@@ -17,10 +17,10 @@ const express_1 = __importDefault(require("express"));
 const mysql_1 = __importDefault(require("../db/mysql"));
 const python_1 = require("../utils/python");
 const app = (0, express_1.default)();
-app.use('/uploads', express_1.default.static(__dirname + '/uploads'));
+app.use('/data', express_1.default.static(__dirname + '/data'));
 var storageVoiceFile = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads');
+        cb(null, 'data');
     },
     filename: (req, file, cb) => {
         let body = req.body;
