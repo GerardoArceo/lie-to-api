@@ -41,18 +41,14 @@ export const execPythonNN = (NNFile: 'ojosNN' | 'vozNN' | 'bpmNN' | 'finalNN', u
           } else {
             fs.readFile(outputPath, 'utf8' , (err: any, data: any) => {
               if (err) {
-                console.error(err)
+                console.error('🐍 ERROR' + err)
                 return
               }
-              if (NNFile === 'finalNN') {
-                const res = parseFloat(data) * 100 * 100
-                let hit_probability = res < 50 ? 100 - res : res
-                hit_probability = Number(hit_probability.toFixed(2))
-                console.log('🐍 RESPONSE: ' + res);
-                resolve({result: res > 50, hit_probability});
-                return;
-              }
-              resolve({result: true});
+              const res = parseFloat(data) * 100
+              let hit_probability = res < 50 ? 100 - res : res
+              hit_probability = Number(hit_probability.toFixed(2))
+              console.log('🐍 RESPONSE: ' + res);
+              resolve({result: res > 50, hit_probability});
             })
           }
         });

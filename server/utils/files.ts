@@ -24,28 +24,28 @@ export const writeTrainingFile = (mode: 'trainingTruth' | 'trainingLie', data: a
     }
   }
   
-  export const transformAudioToWav = (filename: string) => {
-    return new Promise((resolve,reject) => {
-      ffmpeg()
-        .input(`data/gadget/${filename}`)
-        .inputFormat('mp4')
-        .output(`data/gadget/${filename.split('.')[0]}.wav`)
-        .outputFormat('wav')
-        .on('end', () => {
-          resolve('ok')
-          fs.unlinkSync(`data/gadget/${filename}`)
-        })
-        .on('error',(err: string)=>{
-          return reject(new Error(err))
-        })
-        .run();
-   })
+export const transformAudioToWav = (filename: string) => {
+  return new Promise((resolve,reject) => {
+    ffmpeg()
+      .input(`data/gadget/${filename}`)
+      .inputFormat('mp4')
+      .output(`data/gadget/${filename.split('.')[0]}.wav`)
+      .outputFormat('wav')
+      .on('end', () => {
+        resolve('ok')
+        fs.unlinkSync(`data/gadget/${filename}`)
+      })
+      .on('error',(err: string)=>{
+        return reject(new Error(err))
+      })
+      .run();
+  })
+}
+
+export const moveSoundFile = (mode: 'trainingTruth' | 'trainingLie', audioFile: string, inputFile: string) => {
+  if (mode === 'trainingTruth') {
+    fs.renameSync(`data/gadget/${audioFile}`, `data/training/truths/${inputFile}`)
+  } else if (mode === 'trainingLie') {
+    fs.renameSync(`data/gadget/${audioFile}`, `data/training/lies/${inputFile}`)
   }
-  
-  export const moveSoundFile = (mode: 'trainingTruth' | 'trainingLie', audioFile: string, inputFile: string) => {
-    if (mode === 'trainingTruth') {
-      fs.renameSync(`data/gadget/${audioFile}`, `data/training/truths/${inputFile}`)
-    } else if (mode === 'trainingLie') {
-      fs.renameSync(`data/gadget/${audioFile}`, `data/training/lies/${inputFile}`)
-    }
-  }
+}

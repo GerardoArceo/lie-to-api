@@ -34,10 +34,10 @@ export default class MySQL {
         return new Promise<{ok: boolean, results: any}>((resolve, reject) => {
             this.instance.cnn.query(completeQuery, (error, results) => {
                 if (error) {
-                    console.log('mysql', error.message, completeQuery);
+                    console.log('💎 MySQL:', error.message, completeQuery);
                     resolve({ok: false, results: []});
                 } else {
-                    console.log('mysql', 'OK', completeQuery);
+                    console.log('💎 MySQL:', 'OK', completeQuery);
 
                     if (results && results.length > 0) {
                         results = JSON.parse(JSON.stringify(results[0]));

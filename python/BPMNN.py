@@ -32,6 +32,7 @@ clasifica = model_from_json(clasifica_json)
 
 # Carga los pesos al modelo
 clasifica.load_weights(carpeta_modelos+ nom_red + ".h5")
+clasifica.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['accuracy'])
 print("Modelo cargado")
  
 
@@ -44,6 +45,7 @@ modelo_v = model_from_json(modelo_v_json)
 
 # Carga los pesos al modelo
 modelo_v.load_weights(carpeta_modelos + nom_red2 + ".h5")
+modelo_v.compile(optimizer='rmsprop', loss='mse', metrics=['accuracy'])
 print("Modelo cargado")
  
 
@@ -56,19 +58,20 @@ modelo_m = model_from_json(modelo_m_json)
 
 # Carga los pesos al modelo
 modelo_m.load_weights(carpeta_modelos + nom_red3 + ".h5")
+modelo_m.compile(optimizer='rmsprop', loss='mse', metrics=['accuracy'])
 print("Modelo cargado")
 
 
 # ### ----------------- Señal a clasificar
 datos = open(nom_datos, "r").read() #Abre el archivo de datos (tipo .txt)
 datos = np.array(json.loads(datos)).astype(float)   #Separa el texto, convierte la lista en arreglo y a datos numéricos   #Separa el texto, convierte la lista en arreglo y a datos numéricos
-if (datos.size<=60):    #Evita errorres
-        datos = np.concatenate((datos, np.zeros(60-datos.size+5)))
+datos = np.concatenate((np.zeros(60-1), datos))
 
 # ### Predicción de modelos
 
 # Preprocesamiento de datos para modelar
 datos_mod = datos
+
 tamano = datos_mod.size
 sc = MinMaxScaler()
 datos_mod = sc.fit_transform(datos_mod.reshape(tamano,1))   #Normalizado de los datos_mod
@@ -120,4 +123,6 @@ entradas = entradas.reshape(dim_entrada, paso_tiempo, num_carac) #Ajusta las dim
 
 # ## Clasificación por segmento
 clasificacion = clasifica.predict(entradas) #Predice usando la Red
-np.savetxt(nom_output, clasificacion) #Guarda archivo en la carpeta de datos
+clasificacion = np.mean(clasificacion)*5
+print(clasificacion)
+np.savetxt(nom_output, [clasificacion] )

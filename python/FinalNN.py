@@ -29,6 +29,7 @@ red_modelo = model_from_json(red_modelo_json)
 
 # Carga los pesos al modelo
 red_modelo.load_weights(carpeta_modelos + nom_red + ".h5")
+red_modelo.compile(optimizer='rmsprop', loss='mse', metrics=['accuracy']) #Compilación del modelo
 print("Modelo cargado")
 
 
@@ -37,12 +38,11 @@ lst_ojos = (nom_datos_ojos)    #Lista de nombres de archivos de datos de ojos
 lst_bpm = (nom_datos_bpm)    #Lista de nombres de archivos de datos de bpm
 lst_voz = (nom_datos_voz)    #Lista de nombres de archivos de datos de voz
 
-clasi_ojos = np.mean(np.loadtxt(lst_ojos)) #Obtiene clasificación de ojos
-clasi_bpm = np.mean(np.loadtxt(lst_bpm)) #Obtiene clasificación de bpm
-clasi_voz = np.mean(np.loadtxt(lst_voz)) #Obtiene clasificación de voz
+clasi_ojos = np.loadtxt(lst_ojos) #Obtiene clasificación de ojos
+clasi_bpm = np.loadtxt(lst_bpm) #Obtiene clasificación de bpm
+clasi_voz = np.loadtxt(lst_voz) #Obtiene clasificación de voz
 
 entradas =  np.array([clasi_ojos, clasi_bpm, clasi_voz]).T #Crea el arreglo de características
-
 # Preprocesamiento de datos
 tamano = entradas.size
 sc = MinMaxScaler()
@@ -53,10 +53,9 @@ num_carac = 3  #Número de características
 dim_entrada = 1
 
 entradas = entradas.reshape(dim_entrada, paso_tiempo, num_carac) #Ajusta las dimensiones para entrar a la red LSTM"""
-
 # ## Clasificación final
 # Predicciones
-predicciones = red_modelo.predict(entradas) #Predice usando la Red
+predicciones = red_modelo.predict(entradas).reshape(1) #Predice usando la Red
 np.savetxt(nom_output, predicciones) #Guarda archivo en la carpeta de datos
 print(clasi_ojos)
 print(clasi_bpm)

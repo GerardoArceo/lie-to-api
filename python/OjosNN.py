@@ -29,7 +29,8 @@ clasifica = model_from_json(clasifica_json)
 
 # Carga los pesos al modelo
 clasifica.load_weights(carpeta_modelos + nom_red + ".h5")
-print("Modelo cargado")
+clasifica.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['accuracy'])
+print("Modelo clasifica cargado")
  
 
 
@@ -42,10 +43,11 @@ modelo_v = model_from_json(modelo_v_json)
 
 # Carga los pesos al modelo
 modelo_v.load_weights(carpeta_modelos + nom_red2 + ".h5")
-print("Modelo cargado")
+modelo_v.compile(optimizer='rmsprop', loss='mse', metrics=['accuracy'])
+print("Modelo verdad cargado")
  
 
-# Carga json y crea modelo cuadrado
+# Carga json y crea modelo mentira
 nom_red3 = "modelo_m_" + tipo_senal
 json_archivo = open(carpeta_modelos + nom_red3 + '.json', 'r')
 modelo_m_json = json_archivo.read()
@@ -54,19 +56,20 @@ modelo_m = model_from_json(modelo_m_json)
 
 # Carga los pesos al modelo
 modelo_m.load_weights(carpeta_modelos + nom_red3 + ".h5")
-print("Modelo cargado")
+modelo_m.compile(optimizer='rmsprop', loss='mse', metrics=['accuracy'])
+print("Modelo mentira cargado")
 
 
 # ### ----------------- Señal a clasificar
 datos = open(nom_datos, "r").read() #Abre el archivo de datos (tipo .txt)
 datos = np.array(json.loads(datos)).astype(float)   #Separa el texto, convierte la lista en arreglo y a datos numéricos   #Separa el texto, convierte la lista en arreglo y a datos numéricos
-if (datos.size<=60):
-        datos = np.concatenate((datos, np.zeros(60-datos.size+5)))
+datos = np.concatenate((np.zeros(60-1), datos))
 
 # ### Predicción de modelos
 
 # Preprocesamiento de datos
 datos_mod = datos
+
 tamano = datos_mod.size
 sc = MinMaxScaler()
 datos_mod = sc.fit_transform(datos_mod.reshape(tamano,1))   #Normalizado de los datos_mod
@@ -88,7 +91,7 @@ mod_v = sc.inverse_transform(mod_v).reshape(-1)
 mod_m = modelo_m.predict(entradas) #Predice usando la Red cuadrado
 mod_m = sc.inverse_transform(mod_m).reshape(-1)
 
-datos = datos[60:datos.size]
+datos = datos[59:-1]
 
 if (datos.size<=5):
         datos = np.concatenate((datos, np.zeros(5-datos.size+5)))
@@ -118,4 +121,6 @@ entradas = entradas.reshape(dim_entrada, paso_tiempo, num_carac) #Ajusta las dim
 
 # ## Clasificación por segmento
 clasificacion = clasifica.predict(entradas) #Predice usando la Red
-np.savetxt(nom_output, clasificacion) #Guarda archivo
+clasificacion = np.mean(clasificacion)
+print(clasificacion)
+np.savetxt(nom_output, [clasificacion]) #Guarda archivo
