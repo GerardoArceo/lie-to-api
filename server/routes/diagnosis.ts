@@ -70,20 +70,18 @@ app.post('/diagnosis', uploadVoiceFile.single('audioFile'), async (req, res, nex
         return;
     }
 
-    // const promises = [
-    //     execPythonNN('ojosNN', body.uid, body.eyeTrackingData),
-    //     execPythonNN('bpmNN', body.uid, body.bpmData),
-    //     execPythonNN('vozNN', body.uid),
-    // ];
-    // const pythonResults = await Promise.allSettled(promises)
+    const promises = [
+        execPythonNN('ojosNN', body.uid, body.eyeTrackingData),
+        execPythonNN('bpmNN', body.uid, body.bpmData),
+        execPythonNN('vozNN', body.uid),
+    ];
+    const pythonResults = await Promise.allSettled(promises)
 
-    // const eyeMovementResult = pythonResults[0].status === 'fulfilled' ? pythonResults[0].value : {} as any;
-    // const voiceSignalResult = pythonResults[1].status === 'fulfilled' ? pythonResults[1].value : {} as any;
-    // const bpmResult = pythonResults[2].status === 'fulfilled' ? pythonResults[2].value : {} as any;
+    const eyeMovementResult = pythonResults[0].status === 'fulfilled' ? pythonResults[0].value : {} as any;
+    const voiceSignalResult = pythonResults[1].status === 'fulfilled' ? pythonResults[1].value : {} as any;
+    const bpmResult = pythonResults[2].status === 'fulfilled' ? pythonResults[2].value : {} as any;
     
-    // const finalResult = await execPythonNN('finalNN', body.uid);
-
-    const finalResult = await execPythonNN('ojosNN', body.uid, body.eyeTrackingData);
+    const finalResult = await execPythonNN('finalNN', body.uid);
 
     if (body.mode == 'calibration') {
         const args = {
@@ -106,6 +104,32 @@ app.post('/diagnosis', uploadVoiceFile.single('audioFile'), async (req, res, nex
 
         await MySQL.executeSP('save_diagnosis', args);
     }
+
+    const response = {
+        ok: true,
+        final_result: finalResult.result,
+        hit_probability: finalResult.hit_probability
+    }
+
+    res.json(response);
+})
+
+app.post('/diagnosisLite', async (req, res) => {
+    let body: DiagnosisPayload = req.body;
+
+    if (body.fixedAnswer) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        const random = Number((Math.random()*100).toFixed(2))
+        const response = {
+            ok: true,
+            final_result: body.fixedAnswer === 'true',
+            hit_probability: random
+        }
+        res.json(response);
+        return;
+    }
+
+    const finalResult = await execPythonNN('ojosNN', body.uid, body.eyeTrackingData);
 
     const response = {
         ok: true,

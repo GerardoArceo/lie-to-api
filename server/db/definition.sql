@@ -2,6 +2,8 @@ DROP DATABASE IF EXISTS lie_to_db;
 CREATE DATABASE lie_to_db;
 USE lie_to_db;
 
+SET SQL_SAFE_UPDATES = 0;
+
 CREATE TABLE users (
 	id BIGINT AUTO_INCREMENT PRIMARY KEY,
 	google_id VARCHAR(100) UNIQUE,
@@ -23,6 +25,7 @@ CREATE TABLE diagnosis (
     
 	FOREIGN KEY (user_id) REFERENCES users(id)
 );
+DELETE FROM diagnosis;
 SELECT * FROM diagnosis;
 
 CREATE TABLE user_baseline_variables (
@@ -38,6 +41,7 @@ SELECT * FROM user_baseline_variables;
 
 
 
+UPDATE diagnosis SET hit_probability = 99 where id = 82;
 
 
 
@@ -105,8 +109,26 @@ BEGIN
     INSERT INTO diagnosis VALUES (null, _user_id,NOW(),final_result,eye_movement_result,voice_signal_result,bpm_result,hit_probability,NULL);
 END //
 DELIMITER ;
-CALL save_diagnosis('TEST', true, 50, 50, 50, 100);
-
+CALL save_diagnosis('4IBzV8H3R8atuJQuLWhv0XPDMC03', true, 50, 50, 50, 65);
+CALL update_diagnosis_result('4IBzV8H3R8atuJQuLWhv0XPDMC03', true);
+CALL save_diagnosis('4IBzV8H3R8atuJQuLWhv0XPDMC03', true, 50, 50, 50, 78);
+CALL update_diagnosis_result('4IBzV8H3R8atuJQuLWhv0XPDMC03', true);
+CALL save_diagnosis('4IBzV8H3R8atuJQuLWhv0XPDMC03', false, 50, 50, 50, 69);
+CALL update_diagnosis_result('4IBzV8H3R8atuJQuLWhv0XPDMC03', false);
+CALL save_diagnosis('4IBzV8H3R8atuJQuLWhv0XPDMC03', true, 50, 50, 50, 84);
+CALL update_diagnosis_result('4IBzV8H3R8atuJQuLWhv0XPDMC03', true);
+CALL save_diagnosis('4IBzV8H3R8atuJQuLWhv0XPDMC03', false, 50, 50, 50, 80);
+CALL save_diagnosis('4IBzV8H3R8atuJQuLWhv0XPDMC03', false, 50, 50, 50, 95);
+CALL update_diagnosis_result('4IBzV8H3R8atuJQuLWhv0XPDMC03', true);
+CALL save_diagnosis('4IBzV8H3R8atuJQuLWhv0XPDMC03', false, 50, 50, 50, 75);
+CALL update_diagnosis_result('4IBzV8H3R8atuJQuLWhv0XPDMC03', false);
+CALL save_diagnosis('4IBzV8H3R8atuJQuLWhv0XPDMC03', true, 50, 50, 50, 80);
+CALL update_diagnosis_result('4IBzV8H3R8atuJQuLWhv0XPDMC03', true);
+CALL save_diagnosis('4IBzV8H3R8atuJQuLWhv0XPDMC03', false, 50, 50, 50, 94);
+CALL update_diagnosis_result('4IBzV8H3R8atuJQuLWhv0XPDMC03', true);
+CALL save_diagnosis('4IBzV8H3R8atuJQuLWhv0XPDMC03', true, 50, 50, 50, 90);
+CALL update_diagnosis_result('4IBzV8H3R8atuJQuLWhv0XPDMC03', true);
+CALL save_diagnosis('4IBzV8H3R8atuJQuLWhv0XPDMC03', true, 50, 50, 50, 70);
 
 
 
@@ -176,5 +198,5 @@ BEGIN
 	SELECT * FROM diagnosis WHERE user_id = _user_id;
 END //
 DELIMITER ;
-CALL get_user_diagnosis('TEST');
+CALL get_user_diagnosis('4IBzV8H3R8atuJQuLWhv0XPDMC03');
 
