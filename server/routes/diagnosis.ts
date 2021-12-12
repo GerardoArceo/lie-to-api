@@ -41,7 +41,7 @@ app.post('/diagnosis', uploadVoiceFile.single('audioFile'), async (req, res, nex
 
     if (body.fixedAnswer) {
         await new Promise(resolve => setTimeout(resolve, 2000));
-        const random = Number((Math.random()*100).toFixed(2))
+        const random = Number((50 + Math.random()*100).toFixed(2))
         const response = {
             ok: true,
             final_result: body.fixedAnswer === 'true',
@@ -114,12 +114,18 @@ app.post('/diagnosis', uploadVoiceFile.single('audioFile'), async (req, res, nex
     res.json(response);
 })
 
+
+interface DiagnosisLitePayload {
+    eyeTrackingData  : string
+    fixedAnswer     ?: string
+}
+
 app.post('/diagnosisLite', async (req, res) => {
-    let body: DiagnosisPayload = req.body;
+    let body: DiagnosisLitePayload = req.body;
 
     if (body.fixedAnswer) {
         await new Promise(resolve => setTimeout(resolve, 2000));
-        const random = Number((Math.random()*100).toFixed(2))
+        const random = Number((50 + Math.random()*50).toFixed(2))
         const response = {
             ok: true,
             final_result: body.fixedAnswer === 'true',
@@ -129,7 +135,7 @@ app.post('/diagnosisLite', async (req, res) => {
         return;
     }
 
-    const finalResult = await execPythonNN('ojosNN', body.uid, body.eyeTrackingData);
+    const finalResult = await execPythonNN('ojosNN', 'TEST', body.eyeTrackingData);
 
     const response = {
         ok: true,

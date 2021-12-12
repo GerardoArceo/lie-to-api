@@ -1,3 +1,4 @@
+import { OSX_ENV } from "./../config/constants";
 const { exec } = require('child_process');
 const fs = require('fs')
 
@@ -30,8 +31,10 @@ export const execPythonNN = (NNFile: 'ojosNN' | 'vozNN' | 'bpmNN' | 'finalNN', u
 
     if (data) fs.writeFileSync(inputPath, data);
 
+    const env = OSX_ENV ? 'source ~/tensorflow-metal/bin/activate &&' : '';
+
     return new Promise<Result>((resolve, reject) => {
-        let command = `source ~/tensorflow-metal/bin/activate && python3 python/${NNFile}.py ${inputPath} ${outputPath}`;
+        let command = `${env} python3 python/${NNFile}.py ${inputPath} ${outputPath}`;
         console.log('🐍 START:', command);
         exec(command, (err: any, stdout: any, stderr: any) => {
           if (err) {

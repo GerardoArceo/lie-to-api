@@ -7,7 +7,8 @@
         "deploy": "./deploy.sh",
         "test": "echo \"Error: no test specified\" && exit 1",
         "build:prod": "rm -rf build ./build && tsc",
-        "start": "NODE_ENV=dev ts-node-dev server/server.ts"
+        "start": "NODE_ENV=dev OSX_ENV=true ts-node-dev server/server.ts",
+        "inicio": "node build/server.js"
     },
     "dependencies": {
         "@ffmpeg-installer/ffmpeg": "^1.1.0",

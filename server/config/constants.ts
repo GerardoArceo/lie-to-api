@@ -1,6 +1,7 @@
 export const TOKEN_SEED: string = process.env.TOKEN_SEED || 's3m1ll4_d3_d3s4rr0ll0';
 export const TOKEN_LIFE_TIME = process.env.TOKEN_LIFE_TIME || 1000 * 60 * 60 * 24 * 90;
 export const NODE_ENV = process.env.NODE_ENV || 'prod';
+export const OSX_ENV = process.env.OSX_ENV || false;
 export const RECAPTCHA_KEY = process.env.RECAPTCHA_KEY || 'key';
 export const PORT = 3003;
 

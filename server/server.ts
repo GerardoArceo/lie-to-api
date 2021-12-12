@@ -1,10 +1,10 @@
 import cors from "cors";
 import express from 'express';
-import { PORT, NODE_ENV } from "./config/constants";
+import { PORT, NODE_ENV, OSX_ENV } from "./config/constants";
 
 import user from './routes/user';
 import diagnosis from './routes/diagnosis';
-import { createRequiredFolders, deleteAllData } from "./utils/files";
+import { createRequiredFolders } from "./utils/files";
 
 export const app = express();
 
@@ -15,9 +15,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(user);
 app.use(diagnosis);
 
-app.listen(PORT, () => console.log(`🚀 Lie to API running on port: ${PORT} - ${NODE_ENV}`));
+app.listen(PORT, () => console.log(`🚀 Lie to API running on port: ${PORT} - ${NODE_ENV} - OSX_ENV: ${OSX_ENV}`));
 
-// deleteAllData()
 createRequiredFolders()
 
 app.get('/', (req, res) => {
