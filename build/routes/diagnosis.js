@@ -108,7 +108,7 @@ app.post('/diagnosis', uploadVoiceFile.single('audioFile'), (req, res, next) => 
 app.post('/diagnosisLite', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let body = req.body;
     if (body.fixedAnswer) {
-        yield new Promise(resolve => setTimeout(resolve, 2000));
+        yield new Promise(resolve => setTimeout(resolve, 13000));
         const random = Number((50 + Math.random() * 50).toFixed(2));
         const response = {
             ok: true,

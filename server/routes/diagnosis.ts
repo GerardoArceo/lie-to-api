@@ -124,7 +124,7 @@ app.post('/diagnosisLite', async (req, res) => {
     let body: DiagnosisLitePayload = req.body;
 
     if (body.fixedAnswer) {
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 13000));
         const random = Number((50 + Math.random()*50).toFixed(2))
         const response = {
             ok: true,
