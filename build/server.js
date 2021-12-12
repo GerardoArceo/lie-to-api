@@ -16,7 +16,7 @@ exports.app.use(express_1.default.json());
 exports.app.use(express_1.default.urlencoded({ extended: true }));
 exports.app.use(user_1.default);
 exports.app.use(diagnosis_1.default);
-exports.app.listen(constants_1.PORT, () => console.log(`🚀 Lie to API running on port: ${constants_1.PORT} - ${constants_1.NODE_ENV}`));
+exports.app.listen(constants_1.PORT, () => console.log(`🚀 Lie to API running on port: ${constants_1.PORT} - ${constants_1.NODE_ENV} - OSX_ENV: ${constants_1.OSX_ENV}`));
 (0, files_1.createRequiredFolders)();
 exports.app.get('/', (req, res) => {
     const data = {
